@@ -6,7 +6,7 @@ provider "aws" {
 ## VAULT PROJECT SERVER
 ##
 
-resource "aws_security_group" "vaultprojectserver" {
+resource "aws_security_group" "hashicorpvault" {
   name = "${var.aws_sg_name}"
   description = "Allow HTTPS from World, SSH from Org"
   # vpc_id = "${var.vpc_id}"
@@ -63,10 +63,10 @@ resource "template_file" "install" {
     }
 }
 
-resource "aws_instance" "vaultprojectserver" {
+resource "aws_instance" "hashicorpvault" {
   ami = "${var.aws_instance_ami}"
   instance_type = "${var.aws_instance_type}"
-  vpc_security_group_ids = ["${split(",", aws_security_group.vaultprojectserver.id)}"]
+  vpc_security_group_ids = ["${split(",", aws_security_group.hashicorpvault.id)}"]
   associate_public_ip_address = true
   ebs_optimized = false
   key_name = "${var.aws_keyname}"
@@ -88,10 +88,10 @@ resource "aws_instance" "vaultprojectserver" {
   }
 }
 
-resource "aws_route53_record" "vaultprojectserver" {
+resource "aws_route53_record" "hashicorpvault" {
   zone_id = "${var.aws_r53_zone_id}"
   name = "${format("%s.%s", var.aws_r53_record_name, var.aws_r53_zone_domain)}"
   type = "A"
   ttl = "300"
-  records = ["${aws_instance.vaultprojectserver.public_ip}"]
+  records = ["${aws_instance.hashicorpvault.public_ip}"]
 }
