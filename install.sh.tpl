@@ -10,24 +10,27 @@ setenforce 0
 hostnamectl set-hostname ${fqdn}
 
 # Install packages
+yum -y install epel-release
 yum -y update
-yum -y install curl unzip
+yum -y install curl unzip jq
 
 # Download Vault into some temporary directory
 curl -L "${download_url}" > /tmp/vault.zip
 
 # Unzip it
+dBin=/usr/sbin
 cd /tmp
 unzip vault.zip
-mv vault /usr/local/bin
-chmod 0755 /usr/local/bin/vault
-chown root:root /usr/local/bin/vault
+mv vault $dBin
+chmod -v 0755 $dBin/vault
+chown -v root:root $dBin/vault
 
 # Setup the configuration
 cat <<EOFEOF >/tmp/vault-config
 ${config}
 EOFEOF
-mv /tmp/vault-config /usr/local/etc/vault-config.json
+echo Replacing \' with \" in /etc/hashicorpvault.json ...
+cat /tmp/vault-config | sed s:\':\":g | jq . > /etc/hashicorpvault.json
 
 # Setup the init script
 cat <<EOFEOF >/tmp/systemd.init
@@ -38,17 +41,19 @@ After=syslog.target network.target
 [Service]
 Type=simple
 User=root
-ExecStart=/usr/local/bin/vault server -config="/usr/local/etc/vault-config.json"
+ExecStart=/usr/sbin/vault server -config=/etc/hashicorpvault.json
 
 [Install]
 WantedBy=multi-user.target
 EOFEOF
-#mv /tmp/systemd.init /etc/init/vault.conf
+mv -v /tmp/systemd.init /etc/systemd/system/hashicorpvault.service
+chmod -v 0664 /etc/systemd/system/hashicorpvault.service
+systemctl daemon-reload
 
 # Extra install steps (if any)
 ${extra-install}
 
 # Start Vault
-#start vault
+systemctl start hashicorpvault
 
 } 2>&1 | tee -a /root/vault-install.log
