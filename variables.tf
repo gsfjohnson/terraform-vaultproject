@@ -63,7 +63,7 @@ variable "org_cidr_blocks"{
 
 variable "aws_sg_name" {
   description = "Name of security group to use in AWS."
-  default = "app-chef-server"
+  default = "app-hashicorp-vault"
 }
 
 variable "aws_instance_ami" {
