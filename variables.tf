@@ -57,6 +57,10 @@ variable "aws_availability_zone" {
   default = "us-west-2b"
 }
 
+variable "org_cidr_blocks"{
+  description = "Organization CIDRs"
+}
+
 variable "aws_sg_name" {
   description = "Name of security group to use in AWS."
   default = "app-chef-server"
@@ -82,5 +86,5 @@ variable "aws_r53_zone_domain" {
 }
 
 variable "aws_r53_record_name" {
-  description = "Hostname to use in Zone, e.g. chefserver"
+  description = "Hostname to use in Zone, e.g. vault"
 }
